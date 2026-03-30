@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launch Pad | Camp and Dive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        :root {
+            --bg-color: #f2f2f7;
+            --surface: #ffffff;
+            --border: #dde0ea;
+            --text-main: #0f0f1a;
+            --text-muted: #8888a0;
+            --accent: #0f0f1a;
+        }
+
+        body {
+            font-family: 'Barlow', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-size: 14px;
+            line-height: 1.65;
+            margin: 0;
+        }
+
+        .ui-font { font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        /* Layout Structure */
+        .sidebar {
+            width: 248px;
+            transition: width 0.25s ease;
+            border-right: 1px solid var(--border);
+            background: var(--surface);
+            position: fixed;
+            height: 100vh;
+        }
+
+        .main-area {
+            margin-left: 248px;
+            min-height: 100vh;
+        }
+
+        .content-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 32px 20px;
+        }
+
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            height: 52px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        /* Elements */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            transition: border-color 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover { border-color: var(--accent); }
+
+        .hero-gradient::after {
+            content: "";
+            position: absolute;
+            top: 0; right: 0;
+            width: 100px; height: 100px;
+            background: linear-gradient(225deg, rgba(15,15,26,0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            transition: 0.25s ease;
+        }
+
+        .badge {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 10px;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .badge-green { background: #e8f5ee; color: #1a7a40; }
+        .badge-blue { background: #e0ebf5; color: #1e6ab0; }
+
+        .muted-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .sidebar { width: 0; overflow: hidden; border: none; }
+            .main-area { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="p-6">
+            <div class="ui-font font-black text-xl mb-8">CAMP & DIVE</div>
+            
+            <nav>
+                <div class="muted-label mb-4">Launch Pad</div>
+                <ul class="space-y-2">
+                    <li class="ui-font text-[13px] font-bold py-2 px-3 bg-black/5 rounded-[6px] cursor-pointer">Dashboard</li>
+                    <li class="ui-font text-[13px] font-bold py-2 px-3 text-muted-label hover:bg-black/5 rounded-[6px] cursor-pointer">My Notes</li>
+                    <li class="ui-font text-[13px] font-bold py-2 px-3 text-muted-label hover:bg-black/5 rounded-[6px] cursor-pointer">Bookmarks</li>
+                </ul>
+            </nav>
+        </div>
+    </aside>
+
+    <div class="main-area">
+        <header class="sticky-header">
+            <div class="ui-font font-black text-[14px]">Home / Dashboard</div>
+            <div class="ml-auto">
+                <button onclick="loginWithLinkedIn()" id="loginBtn" class="btn-primary ui-font">Login with LinkedIn</button>
+            </div>
+        </header>
+
+        <main class="content-container">
+            <div class="card hero-gradient mb-4">
+                <h1 class="ui-font font-black text-[32px] leading-tight mb-2">Welcome, Frederick</h1>
+                <p class="text-[14px] text-[#8888a0]">Your central hub for "Camp and Dive" resources and quick-access notes.</p>
+            </div>
+
+            <div class="grid gap-3">
+                <div class="card">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="badge badge-green">Note</span>
+                        <span class="muted-label">Created 2026-03-30</span>
+                    </div>
+                    <h3 class="ui-font font-black text-[18px]">PADI Instructor Physics</h3>
+                    <p>Review Boyle's Law vs Charles' Law before the next session. High priority for IE exams.</p>
+                </div>
+
+                <div class="card">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="badge badge-blue">URL</span>
+                    </div>
+                    <h3 class="ui-font font-black text-[18px]">Supabase Documentation</h3>
+                    <p class="text-[#1e6ab0] underline truncate">https://supabase.com/docs/guides/auth/social-login/auth-linkedin</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Supabase Configuration
+        const _supabase = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_ANON_KEY');
+
+        async function loginWithLinkedIn() {
+            // This is the trigger for your gated login
+            const { data, error } = await _supabase.auth.signInWithOAuth({
+                provider: 'linkedin_oidc',
+                options: {
+                    redirectTo: window.location.origin
+                }
+            });
+            
+            if (error) console.error('Error logging in:', error.message);
+        }
+
+        // Check user session on load
+        window.onload = async () => {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (session) {
+                document.getElementById('loginBtn').innerText = 'LOGOUT';
+                document.getElementById('loginBtn').onclick = () => _supabase.auth.signOut();
+            }
+        };
+    </script>
+</body>
+</html>
