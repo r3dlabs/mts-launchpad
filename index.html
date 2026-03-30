@@ -144,14 +144,16 @@
     <div class="main-area">
         <header class="sticky-header">
             <div class="ui-font font-black text-[14px]">Home / Dashboard</div>
-            <div class="ml-auto">
+            
+            <div class="ml-auto flex items-center gap-4">
+                <img id="userAvatar" src="" alt="Profile Photo" class="w-8 h-8 rounded-[6px] border border-[#dde0ea] hidden object-cover">
                 <button onclick="loginWithLinkedIn()" id="loginBtn" class="btn-primary ui-font">Login with LinkedIn</button>
             </div>
         </header>
 
         <main class="content-container">
             <div class="card hero-gradient mb-4">
-                <h1 class="ui-font font-black text-[32px] leading-tight mb-2">Welcome, Frederick</h1>
+                <h1 id="welcomeGreeting" class="ui-font font-black text-[32px] leading-tight mb-2">Welcome, Guest</h1>
                 <p class="text-[14px] text-[#8888a0]">Your central hub for "Camp and Dive" resources and quick-access notes.</p>
             </div>
 
@@ -177,7 +179,7 @@
     </div>
 
     <script>
-        // Supabase Configuration using your exact credentials
+        // Supabase Configuration
         const supabaseUrl = 'https://cjelslmjloxxdwjqcght.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqZWxzbG1qbG94eGR3anFjZ2h0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NjM3NjgsImV4cCI6MjA5MDQzOTc2OH0.ZwKW1LGBBhhC2QQuG2DZwJ3M9Un0Oj5nAitodKgq808';
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -200,15 +202,34 @@
             }
         }
 
-        // Check user session on load to update the UI if already logged in
+        // Check user session on load
         window.onload = async () => {
             const { data: { session } } = await _supabase.auth.getSession();
+            
             if (session) {
+                // 1. Extract the user metadata provided by LinkedIn
+                const metadata = session.user.user_metadata;
+                
+                // LinkedIn usually provides 'full_name' or 'name', and 'picture' or 'avatar_url'
+                const fullName = metadata.full_name || metadata.name || 'Diver';
+                const avatarUrl = metadata.picture || metadata.avatar_url;
+
+                // 2. Update the Hero Greeting
+                document.getElementById('welcomeGreeting').innerText = `Welcome, ${fullName}`;
+
+                // 3. Update the Avatar Image in the header
+                if (avatarUrl) {
+                    const avatarImg = document.getElementById('userAvatar');
+                    avatarImg.src = avatarUrl;
+                    avatarImg.classList.remove('hidden'); // Reveal the image
+                }
+
+                // 4. Transform the Login button into a Logout button
                 const loginBtn = document.getElementById('loginBtn');
                 loginBtn.innerText = 'LOGOUT';
                 loginBtn.onclick = async () => {
                     await _supabase.auth.signOut();
-                    window.location.reload();
+                    window.location.reload(); // Refresh to clear the page state
                 };
             }
         };
