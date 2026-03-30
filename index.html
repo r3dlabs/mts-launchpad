@@ -29,7 +29,6 @@
 
         .ui-font { font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }
         
-        /* Layout Structure */
         .sidebar {
             width: 248px;
             transition: width 0.25s ease;
@@ -62,7 +61,6 @@
             padding: 0 20px;
         }
 
-        /* Elements */
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -95,6 +93,23 @@
             cursor: pointer;
             border: none;
         }
+        
+        .btn-outline {
+            background: var(--surface);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            transition: 0.25s ease;
+            cursor: pointer;
+        }
+        
+        .btn-outline:hover {
+            background: var(--accent);
+            color: white;
+        }
 
         .badge {
             font-family: 'Barlow Condensed', sans-serif;
@@ -117,7 +132,6 @@
             text-transform: uppercase;
         }
 
-        /* Mobile Adjustments */
         @media (max-width: 768px) {
             .sidebar { width: 0; overflow: hidden; border: none; }
             .main-area { margin-left: 0; }
@@ -145,38 +159,59 @@
         <header class="sticky-header">
             <div class="ui-font font-black text-[14px]">Home / Dashboard</div>
             
-            <div class="ml-auto flex items-center gap-4">
-                <div id="avatarContainer" class="hidden">
-                    <img id="userAvatar" src="" alt="Profile Photo" class="w-8 h-8 rounded-[6px] border border-[#dde0ea] object-cover hidden">
-                </div>
+            <div class="ml-auto flex items-center gap-4 relative">
                 <button onclick="loginWithLinkedIn()" id="loginBtn" class="btn-primary ui-font">Login with LinkedIn</button>
+                
+                <div id="userMenuContainer" class="hidden relative">
+                    <button onclick="toggleDropdown()" class="w-8 h-8 rounded-[6px] border border-[#dde0ea] bg-[#e8f5ee] flex items-center justify-center overflow-hidden cursor-pointer hover:border-[#0f0f1a] transition-all focus:outline-none">
+                        <img id="userAvatar" src="" alt="Profile Photo" class="w-full h-full object-cover hidden">
+                        <span id="fallbackInitial" class="text-[#1a7a40] font-['Barlow_Condensed'] font-bold text-[16px] hidden"></span>
+                    </button>
+
+                    <div id="dropdownMenu" class="hidden absolute right-0 mt-3 w-[200px] bg-white border border-[#dde0ea] rounded-[8px] p-4 z-50">
+                        <div class="mb-3 pb-3 border-b border-[#dde0ea]">
+                            <p class="muted-label mb-1">Signed in as</p>
+                            <p id="dropdownName" class="ui-font font-black text-[14px] truncate text-[#0f0f1a]">Guest</p>
+                        </div>
+                        <button onclick="logout()" class="btn-outline ui-font w-full">Logout</button>
+                    </div>
+                </div>
             </div>
         </header>
 
         <main class="content-container">
-            <div class="card hero-gradient mb-4">
-                <h1 id="welcomeGreeting" class="ui-font font-black text-[32px] leading-tight mb-2">Welcome, Guest</h1>
-                <p class="text-[14px] text-[#8888a0]">Your central hub for "Camp and Dive" resources and quick-access notes.</p>
+            
+            <div id="loggedOutView" class="card hero-gradient mb-4">
+                <h1 class="ui-font font-black text-[32px] leading-tight mb-2">Welcome to Launch Pad</h1>
+                <p class="text-[14px] text-[#8888a0]">Please login with LinkedIn to access your personalized Camp and Dive notes.</p>
             </div>
 
-            <div class="grid gap-3">
-                <div class="card">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="badge badge-green">Note</span>
-                        <span class="muted-label">Created 2026-03-30</span>
-                    </div>
-                    <h3 class="ui-font font-black text-[18px]">PADI Instructor Physics</h3>
-                    <p>Review Boyle's Law vs Charles' Law before the next session. High priority for IE exams.</p>
+            <div id="loggedInView" class="hidden">
+                <div class="card hero-gradient mb-4">
+                    <h1 id="welcomeGreeting" class="ui-font font-black text-[32px] leading-tight mb-2">Welcome, Guest</h1>
+                    <p class="text-[14px] text-[#8888a0]">Your central hub for "Camp and Dive" resources and quick-access notes.</p>
                 </div>
 
-                <div class="card">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="badge badge-blue">URL</span>
+                <div class="grid gap-3">
+                    <div class="card">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="badge badge-green">Note</span>
+                            <span class="muted-label">Created 2026-03-30</span>
+                        </div>
+                        <h3 class="ui-font font-black text-[18px]">PADI Instructor Physics</h3>
+                        <p>Review Boyle's Law vs Charles' Law before the next session. High priority for IE exams.</p>
                     </div>
-                    <h3 class="ui-font font-black text-[18px]">Supabase Documentation</h3>
-                    <p class="text-[#1e6ab0] underline truncate">https://supabase.com/docs/guides/auth/social-login/auth-linkedin</p>
+
+                    <div class="card">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="badge badge-blue">URL</span>
+                        </div>
+                        <h3 class="ui-font font-black text-[18px]">Supabase Documentation</h3>
+                        <p class="text-[#1e6ab0] underline truncate">https://supabase.com/docs/guides/auth/social-login/auth-linkedin</p>
+                    </div>
                 </div>
             </div>
+            
         </main>
     </div>
 
@@ -186,65 +221,67 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqZWxzbG1qbG94eGR3anFjZ2h0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NjM3NjgsImV4cCI6MjA5MDQzOTc2OH0.ZwKW1LGBBhhC2QQuG2DZwJ3M9Un0Oj5nAitodKgq808';
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+        // --- Auth Functions ---
         async function loginWithLinkedIn() {
-            try {
-                const { data, error } = await _supabase.auth.signInWithOAuth({
-                    provider: 'linkedin_oidc',
-                    options: {
-                        redirectTo: window.location.origin
-                    }
-                });
-                
-                if (error) {
-                    console.error('Error logging in:', error.message);
-                    alert('Login failed: ' + error.message);
+            await _supabase.auth.signInWithOAuth({
+                provider: 'linkedin_oidc',
+                options: { redirectTo: window.location.origin }
+            });
+        }
+
+        async function logout() {
+            await _supabase.auth.signOut();
+            window.location.reload(); 
+        }
+
+        // --- UI Functions ---
+        function toggleDropdown() {
+            document.getElementById('dropdownMenu').classList.toggle('hidden');
+        }
+
+        // Close dropdown if user clicks outside of it
+        window.onclick = function(event) {
+            if (!event.target.closest('#userMenuContainer')) {
+                const dropdown = document.getElementById('dropdownMenu');
+                if (dropdown && !dropdown.classList.contains('hidden')) {
+                    dropdown.classList.add('hidden');
                 }
-            } catch (err) {
-                console.error('Exception during login:', err);
             }
         }
 
-        // Check user session on load
+        // --- On Load Logic ---
         window.onload = async () => {
             const { data: { session } } = await _supabase.auth.getSession();
             
             if (session) {
-                // 1. Extract the user metadata
-                const metadata = session.user.user_metadata;
-                console.log("LinkedIn Payload:", metadata); 
+                // 1. Swap Header UI
+                document.getElementById('loginBtn').classList.add('hidden');
+                document.getElementById('userMenuContainer').classList.remove('hidden');
                 
+                // 2. Swap Main Content View
+                document.getElementById('loggedOutView').classList.add('hidden');
+                document.getElementById('loggedInView').classList.remove('hidden');
+
+                // 3. Extract User Data
+                const metadata = session.user.user_metadata;
                 const fullName = metadata.full_name || metadata.name || 'Diver';
                 const avatarUrl = metadata.picture || metadata.avatar_url;
 
-                // 2. Update the Hero Greeting
+                // 4. Populate Text
                 document.getElementById('welcomeGreeting').innerText = `Welcome, ${fullName}`;
+                document.getElementById('dropdownName').innerText = fullName;
 
-                // 3. Handle the Avatar
-                const avatarContainer = document.getElementById('avatarContainer');
-                avatarContainer.classList.remove('hidden'); // Show the container
+                // 5. Populate Avatar
+                const avatarImg = document.getElementById('userAvatar');
+                const fallbackInitial = document.getElementById('fallbackInitial');
                 
                 if (avatarUrl) {
-                    // Show actual photo
-                    const avatarImg = document.getElementById('userAvatar');
                     avatarImg.src = avatarUrl;
                     avatarImg.classList.remove('hidden');
                 } else {
-                    // Show fallback initial
-                    const initial = fullName.charAt(0).toUpperCase();
-                    avatarContainer.innerHTML = `
-                        <div class="w-8 h-8 rounded-[6px] border border-[#dde0ea] bg-[#e8f5ee] text-[#1a7a40] font-['Barlow_Condensed'] font-bold flex items-center justify-center text-[16px]">
-                            ${initial}
-                        </div>
-                    `;
+                    fallbackInitial.innerText = fullName.charAt(0).toUpperCase();
+                    fallbackInitial.classList.remove('hidden');
                 }
-
-                // 4. Transform Login to Logout
-                const loginBtn = document.getElementById('loginBtn');
-                loginBtn.innerText = 'LOGOUT';
-                loginBtn.onclick = async () => {
-                    await _supabase.auth.signOut();
-                    window.location.reload(); 
-                };
             }
         };
     </script>
