@@ -29,7 +29,6 @@
 
         .ui-font { font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }
         
-        /* Layout Structure */
         .sidebar {
             width: 248px;
             transition: width 0.25s ease;
@@ -62,7 +61,6 @@
             padding: 0 20px;
         }
 
-        /* Elements */
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -134,7 +132,6 @@
             text-transform: uppercase;
         }
 
-        /* Mobile Adjustments */
         @media (max-width: 768px) {
             .sidebar { width: 0; overflow: hidden; border: none; }
             .main-area { margin-left: 0; }
@@ -166,9 +163,9 @@
                 <button onclick="loginWithLinkedIn()" id="loginBtn" class="btn-primary ui-font">Login with LinkedIn</button>
                 
                 <div id="userMenuContainer" class="hidden relative">
-                    <button onclick="toggleDropdown(event)" class="w-8 h-8 rounded-[6px] border border-[#dde0ea] bg-[#e8f5ee] flex items-center justify-center overflow-hidden cursor-pointer hover:border-[#0f0f1a] transition-all focus:outline-none">
+                    <button onclick="toggleDropdown(event)" class="w-9 h-9 rounded-full border border-[#dde0ea] bg-[#1e6ab0] flex items-center justify-center overflow-hidden cursor-pointer hover:border-[#0f0f1a] transition-all focus:outline-none">
                         <img id="userAvatar" src="" alt="Profile Photo" class="w-full h-full object-cover hidden">
-                        <span id="fallbackInitial" class="text-[#1a7a40] font-['Barlow_Condensed'] font-bold text-[16px] hidden"></span>
+                        <span id="fallbackInitial" class="text-white font-['Barlow_Condensed'] font-bold text-[14px] tracking-wider hidden"></span>
                     </button>
 
                     <div id="dropdownMenu" class="hidden absolute right-0 mt-3 w-[200px] bg-white border border-[#dde0ea] rounded-[8px] p-4 z-50">
@@ -226,6 +223,15 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqZWxzbG1qbG94eGR3anFjZ2h0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NjM3NjgsImV4cCI6MjA5MDQzOTc2OH0.ZwKW1LGBBhhC2QQuG2DZwJ3M9Un0Oj5nAitodKgq808';
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+        // --- Helper Function: Extract Two Initials ---
+        function getInitials(name) {
+            if (!name) return '?';
+            const parts = name.trim().split(/\s+/);
+            if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+            // Take first letter of first word, and first letter of last word
+            return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+        }
+
         // --- Auth Functions ---
         async function loginWithLinkedIn() {
             await _supabase.auth.signInWithOAuth({
@@ -241,11 +247,10 @@
 
         // --- UI Functions ---
         function toggleDropdown(event) {
-            event.stopPropagation(); // Prevent the window.onclick from immediately closing it
+            event.stopPropagation();
             document.getElementById('dropdownMenu').classList.toggle('hidden');
         }
 
-        // Close dropdown if user clicks outside of it
         window.onclick = function(event) {
             if (!event.target.closest('#dropdownMenu')) {
                 const dropdown = document.getElementById('dropdownMenu');
@@ -260,33 +265,35 @@
             const { data: { session } } = await _supabase.auth.getSession();
             
             if (session) {
-                // 1. Swap Header UI
+                // Swap UI Views
                 document.getElementById('loginBtn').classList.add('hidden');
                 document.getElementById('userMenuContainer').classList.remove('hidden');
-                
-                // 2. Swap Main Content View
                 document.getElementById('loggedOutView').classList.add('hidden');
                 document.getElementById('loggedInView').classList.remove('hidden');
 
-                // 3. Extract User Data
+                // Extract Metadata
                 const metadata = session.user.user_metadata;
                 const fullName = metadata.full_name || metadata.name || 'Diver';
                 const avatarUrl = metadata.picture || metadata.avatar_url;
 
-                // 4. Populate Text
+                // Populate Text
                 document.getElementById('welcomeGreeting').innerText = `Welcome, ${fullName}`;
                 document.getElementById('dropdownName').innerText = fullName;
 
-                // 5. Populate Avatar
+                // Handle Avatar vs Initials
                 const avatarImg = document.getElementById('userAvatar');
                 const fallbackInitial = document.getElementById('fallbackInitial');
                 
                 if (avatarUrl) {
+                    // Show actual photo
                     avatarImg.src = avatarUrl;
                     avatarImg.classList.remove('hidden');
+                    fallbackInitial.classList.add('hidden');
                 } else {
-                    fallbackInitial.innerText = fullName.charAt(0).toUpperCase();
+                    // Show standard 2-letter fallback
+                    fallbackInitial.innerText = getInitials(fullName);
                     fallbackInitial.classList.remove('hidden');
+                    avatarImg.classList.add('hidden');
                 }
             }
         };
