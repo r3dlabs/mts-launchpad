@@ -29,6 +29,7 @@
 
         .ui-font { font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }
         
+        /* Layout Structure */
         .sidebar {
             width: 248px;
             transition: width 0.25s ease;
@@ -61,6 +62,7 @@
             padding: 0 20px;
         }
 
+        /* Elements */
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -132,6 +134,7 @@
             text-transform: uppercase;
         }
 
+        /* Mobile Adjustments */
         @media (max-width: 768px) {
             .sidebar { width: 0; overflow: hidden; border: none; }
             .main-area { margin-left: 0; }
@@ -163,7 +166,7 @@
                 <button onclick="loginWithLinkedIn()" id="loginBtn" class="btn-primary ui-font">Login with LinkedIn</button>
                 
                 <div id="userMenuContainer" class="hidden relative">
-                    <button onclick="toggleDropdown()" class="w-8 h-8 rounded-[6px] border border-[#dde0ea] bg-[#e8f5ee] flex items-center justify-center overflow-hidden cursor-pointer hover:border-[#0f0f1a] transition-all focus:outline-none">
+                    <button onclick="toggleDropdown(event)" class="w-8 h-8 rounded-[6px] border border-[#dde0ea] bg-[#e8f5ee] flex items-center justify-center overflow-hidden cursor-pointer hover:border-[#0f0f1a] transition-all focus:outline-none">
                         <img id="userAvatar" src="" alt="Profile Photo" class="w-full h-full object-cover hidden">
                         <span id="fallbackInitial" class="text-[#1a7a40] font-['Barlow_Condensed'] font-bold text-[16px] hidden"></span>
                     </button>
@@ -171,7 +174,7 @@
                     <div id="dropdownMenu" class="hidden absolute right-0 mt-3 w-[200px] bg-white border border-[#dde0ea] rounded-[8px] p-4 z-50">
                         <div class="mb-3 pb-3 border-b border-[#dde0ea]">
                             <p class="muted-label mb-1">Signed in as</p>
-                            <p id="dropdownName" class="ui-font font-black text-[14px] truncate text-[#0f0f1a]">Guest</p>
+                            <p id="dropdownName" class="ui-font font-black text-[14px] truncate text-[#0f0f1a]"></p>
                         </div>
                         <button onclick="logout()" class="btn-outline ui-font w-full">Logout</button>
                     </div>
@@ -181,14 +184,16 @@
 
         <main class="content-container">
             
-            <div id="loggedOutView" class="card hero-gradient mb-4">
-                <h1 class="ui-font font-black text-[32px] leading-tight mb-2">Welcome to Launch Pad</h1>
-                <p class="text-[14px] text-[#8888a0]">Please login with LinkedIn to access your personalized Camp and Dive notes.</p>
+            <div id="loggedOutView">
+                <div class="card hero-gradient mb-4">
+                    <h1 class="ui-font font-black text-[32px] leading-tight mb-2">Welcome to Launch Pad</h1>
+                    <p class="text-[14px] text-[#8888a0]">Please login with LinkedIn to access your personalized Camp and Dive notes.</p>
+                </div>
             </div>
 
             <div id="loggedInView" class="hidden">
                 <div class="card hero-gradient mb-4">
-                    <h1 id="welcomeGreeting" class="ui-font font-black text-[32px] leading-tight mb-2">Welcome, Guest</h1>
+                    <h1 id="welcomeGreeting" class="ui-font font-black text-[32px] leading-tight mb-2"></h1>
                     <p class="text-[14px] text-[#8888a0]">Your central hub for "Camp and Dive" resources and quick-access notes.</p>
                 </div>
 
@@ -235,13 +240,14 @@
         }
 
         // --- UI Functions ---
-        function toggleDropdown() {
+        function toggleDropdown(event) {
+            event.stopPropagation(); // Prevent the window.onclick from immediately closing it
             document.getElementById('dropdownMenu').classList.toggle('hidden');
         }
 
         // Close dropdown if user clicks outside of it
         window.onclick = function(event) {
-            if (!event.target.closest('#userMenuContainer')) {
+            if (!event.target.closest('#dropdownMenu')) {
                 const dropdown = document.getElementById('dropdownMenu');
                 if (dropdown && !dropdown.classList.contains('hidden')) {
                     dropdown.classList.add('hidden');
