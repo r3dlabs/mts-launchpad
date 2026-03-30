@@ -146,7 +146,9 @@
             <div class="ui-font font-black text-[14px]">Home / Dashboard</div>
             
             <div class="ml-auto flex items-center gap-4">
-                <img id="userAvatar" src="" alt="Profile Photo" class="w-8 h-8 rounded-[6px] border border-[#dde0ea] hidden object-cover">
+                <div id="avatarContainer" class="hidden">
+                    <img id="userAvatar" src="" alt="Profile Photo" class="w-8 h-8 rounded-[6px] border border-[#dde0ea] object-cover hidden">
+                </div>
                 <button onclick="loginWithLinkedIn()" id="loginBtn" class="btn-primary ui-font">Login with LinkedIn</button>
             </div>
         </header>
@@ -207,29 +209,41 @@
             const { data: { session } } = await _supabase.auth.getSession();
             
             if (session) {
-                // 1. Extract the user metadata provided by LinkedIn
+                // 1. Extract the user metadata
                 const metadata = session.user.user_metadata;
+                console.log("LinkedIn Payload:", metadata); 
                 
-                // LinkedIn usually provides 'full_name' or 'name', and 'picture' or 'avatar_url'
                 const fullName = metadata.full_name || metadata.name || 'Diver';
                 const avatarUrl = metadata.picture || metadata.avatar_url;
 
                 // 2. Update the Hero Greeting
                 document.getElementById('welcomeGreeting').innerText = `Welcome, ${fullName}`;
 
-                // 3. Update the Avatar Image in the header
+                // 3. Handle the Avatar
+                const avatarContainer = document.getElementById('avatarContainer');
+                avatarContainer.classList.remove('hidden'); // Show the container
+                
                 if (avatarUrl) {
+                    // Show actual photo
                     const avatarImg = document.getElementById('userAvatar');
                     avatarImg.src = avatarUrl;
-                    avatarImg.classList.remove('hidden'); // Reveal the image
+                    avatarImg.classList.remove('hidden');
+                } else {
+                    // Show fallback initial
+                    const initial = fullName.charAt(0).toUpperCase();
+                    avatarContainer.innerHTML = `
+                        <div class="w-8 h-8 rounded-[6px] border border-[#dde0ea] bg-[#e8f5ee] text-[#1a7a40] font-['Barlow_Condensed'] font-bold flex items-center justify-center text-[16px]">
+                            ${initial}
+                        </div>
+                    `;
                 }
 
-                // 4. Transform the Login button into a Logout button
+                // 4. Transform Login to Logout
                 const loginBtn = document.getElementById('loginBtn');
                 loginBtn.innerText = 'LOGOUT';
                 loginBtn.onclick = async () => {
                     await _supabase.auth.signOut();
-                    window.location.reload(); // Refresh to clear the page state
+                    window.location.reload(); 
                 };
             }
         };
